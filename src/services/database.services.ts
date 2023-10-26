@@ -30,6 +30,7 @@ class DatabaseServices {
     }
   }
 
+  //!SECTION Sau connect thì mình sẽ truy cập vào Users
   //? nêu mình không mô tả thì Collection chỉ biết là trả ra Document
   //? nên mình phải mô tả cho Collection bằng cách trả ra các giá trị trong User (Schema)
   get users(): Collection<User> {

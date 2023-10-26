@@ -5,9 +5,9 @@ import { buffer } from 'stream/consumers'
 //* từ đó ký tên
 //? tại sao không nhận vào callback vì có thể xảy ra bug
 //? nenen mình muốn sử dụng hàm callback để xử lý lỗi nên không dùng
-export const signToken = ({
+export const  signToken = ({
   payload,
-  privateKey = process.env.JWT_JWT_SECRECT as string,
+  privateKey = process.env.JWT_SECRECT as string,
   options = { algorithm: 'HS256' }
 }: {
   payload: string | object | Buffer

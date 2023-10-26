@@ -1,10 +1,16 @@
 import { Router } from 'express'
 import { loginValidator, registerValidator } from '~/middlewares/users.middlewares'
 import { loginController, registerController } from '~/controllers/users.controllers'
-
+import { WarpAsync } from '~/utils/handlers'
 const usersRouter = Router()
 
 //! usersRouter.use(loginValidator)
+/**!SECTION
+ * DES: Đăng nhập tài khoản
+ * PATH: users/login
+ * METHOD: GET
+ * BODY: {Email: string, Password: string}
+ */
 usersRouter.get('/login', loginValidator, loginController)
 
 //! register thì cần đẩy dữ liệu lên nên dùng post
@@ -22,5 +28,5 @@ usersRouter.get('/login', loginValidator, loginController)
       không có bất cứ kiểu nào tên là date
    }
 */
-usersRouter.post('/register', registerValidator, registerController) //? đăng ký
+usersRouter.post('/register', registerValidator, WarpAsync(registerController))
 export default usersRouter
