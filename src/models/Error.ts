@@ -12,6 +12,7 @@ type ErrorsType = Record<
 export class ErrorWithStatus {
   message: string
   status: number
+  //nhận vào 1 lời nhắn và 1 trạng thái sẽ tạo ra 1 object tương ứng
   constructor({ message, status }: { message: string; status: number }) {
     this.message = message
     this.status = status

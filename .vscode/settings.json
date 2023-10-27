@@ -1,3 +1,7 @@
 {
-  "files.autoSave": "afterDelay"
+  "files.autoSave": "afterDelay",
+  "github.copilot.editor.enableAutoCompletions": true,
+  "github.copilot.advanced": {
+    
+  }
 }

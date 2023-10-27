@@ -25,8 +25,11 @@ export const validate = (validation: RunnableValidationChains<ValidationChain>) 
 
     //! res.status(400).json({ errors: errors.array() }) không nên sử dụng vì trả ra không đpẹ nên sử dụng
     //! mapped
+    // * Tinh chỉnh lại mapped() để xuất hiện lỗi như mình mong muốn
+
     const errorObject = errors.mapped()
     const entityError = new EntityError({ errors: {} })
+    //!-----------------------------------------------
     //! Xử lý errorObject
     //ToDO- Đi qua từng key của errorObject
     for (const key in errorObject) {
