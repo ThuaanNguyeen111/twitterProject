@@ -1,9 +1,12 @@
+import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import { RegisterReqBody } from '~/models/requests/User.requests'
 import User from '../models/schemas/users.schemas'
 import DatabaseService from './database.services'
 import { hashPassword } from '~/utils/crypto'
 import { UserRoles } from '~/constants/enums'
 import { signToken } from '~/utils/jwt'
+import { ObjectId } from 'mongodb'
+import { USERS_MESSAGES } from '~/constants/message'
 
 class userService {
   //!------------------------------------------------------------------------------------------
@@ -14,7 +17,7 @@ class userService {
   }
 
   //!------------------------------------------------------------------------------------------
-  private signRefeshToken(user_id: string) {
+  private signRefreshToken(user_id: string) {
     return signToken({
       payload: { user_id, token_type: UserRoles.RefreshToken },
       options: { expiresIn: process.env.REFRESH_TOKEN_EXPIRE_IN }
@@ -35,7 +38,7 @@ class userService {
   //!------------------------------------------------------------------------------------------
   //* HÀM kí tên
   private signAccessRefershToken(user_id: string) {
-    return Promise.all([this.signAccessToken(user_id), this.signRefeshToken(user_id)])
+    return Promise.all([this.signAccessToken(user_id), this.signRefreshToken(user_id)])
   }
 
   //!------------------------------------------------------------------------------------------
@@ -52,17 +55,29 @@ class userService {
     )
     //! khi đã tạo ra 1 user thì tạo luôn 1 access token và 1 refresh token
     const user_id = result.insertedId.toString()
-    const [AccessToken, RefreshToken] = await this.signAccessRefershToken(user_id)
-    return { AccessToken, RefreshToken }
+    const [access_Token, refresh_token] = await this.signAccessRefershToken(user_id)
+    //?------------------------------------------------------------------------------------------
+    //TODO: LƯU refresh TOKEN VÀO DATABASE
+    await DatabaseService.RefreshTokens.insertOne(
+      new RefreshToken({
+        token: refresh_token,
+        user_id: new ObjectId(user_id)
+      })
+    )
+    return { access_Token, refresh_token }
   }
   //!------------------------------------------------------------------------------------------
   //? Hàm login
   async login(user_id: string) {
-    //* dùng user_id để tạo access_token và refresh_token
-    const [AccessToken, RefreshToken] = await this.signAccessRefershToken(user_id)
-    return { AccessToken, RefreshToken }
+    //* dùng user_id để tạo access_token vàrefresh_token
+    const [access_Token, refresh_token] = await this.signAccessRefershToken(user_id)
+    return { access_Token, refresh_token }
   }
   //!------------------------------------------------------------------------------------------
+  async logout(refresh_token: string) {
+    await DatabaseService.RefreshTokens.deleteOne({ token: refresh_token })
+    return { message: USERS_MESSAGES.LOGOUT_SUCCESS }
+  }
 }
 
 const UserServicess = new userService()

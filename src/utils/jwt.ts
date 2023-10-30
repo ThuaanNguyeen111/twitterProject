@@ -1,3 +1,4 @@
+import { TokenPayload } from './../models/requests/User.requests'
 import jwt from 'jsonwebtoken'
 import { buffer } from 'stream/consumers'
 //
@@ -21,4 +22,22 @@ export const signToken = ({
     })
   })
 }
-//! Kế thừa là
+
+//TODO - làm hàm nhận vào token, serectkeyOrPublicKey
+export const verifyToken = ({
+  token,
+  secretOrPublicKey = process.env.JWT_SECRECT as string
+}: {
+  token: string
+  secretOrPublicKey?: string
+}) => {
+  //nếu thành công phải trả rA  jwt.JwtPayload
+  return new Promise<TokenPayload>((resolve, reject) => {
+    //! hàm call back ở chỗ này sẽ đặc biệt
+    // bởi vì nó sẽ trả về 1 decoded (payload) còn thất bại thì trả về 1 (err)
+    jwt.verify(token, secretOrPublicKey, (err, decoded) => {
+      if (err) throw reject(err)
+      resolve(decoded as TokenPayload)
+    })
+  })
+}

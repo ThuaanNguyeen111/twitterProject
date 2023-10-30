@@ -1,6 +1,11 @@
 import { Router } from 'express'
-import { loginValidator, registerValidator } from '~/middlewares/users.middlewares'
-import { loginController, registerController } from '~/controllers/users.controllers'
+import {
+  accessTokenValidator,
+  loginValidator,
+  refreshTokenValidator,
+  registerValidator
+} from '~/middlewares/users.middlewares'
+import { loginController, logoutController, registerController } from '~/controllers/users.controllers'
 import { WarpAsync } from '~/utils/handlers'
 const usersRouter = Router()
 
@@ -11,7 +16,7 @@ const usersRouter = Router()
  * METHOD: GET
  * BODY: {Email: string, Password: string}
  */
-usersRouter.get('/login', loginValidator, loginController)
+usersRouter.get('/login', loginValidator, WarpAsync(loginController))
 
 //! register thì cần đẩy dữ liệu lên nên dùng post
 /*
@@ -29,4 +34,14 @@ usersRouter.get('/login', loginValidator, loginController)
    }
 */
 usersRouter.post('/register', registerValidator, WarpAsync(registerController))
+
+/**
+ * des:dùng để đăng xuất
+ * path: /api/users/logout
+ * method: POST
+ * headers: {Authorization: 'Bearer <access_token>'}
+ * body: {refresh_token: string}
+ */
+usersRouter.post('/logout', accessTokenValidator, refreshTokenValidator, WarpAsync(logoutController))
+
 export default usersRouter

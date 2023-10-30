@@ -4,6 +4,7 @@ import { MongoClient, ServerApiVersion, Db, Collection } from 'mongodb'
 // sử dụng bằng các như dưới
 import { config } from 'dotenv'
 import User from '../models/schemas/users.schemas'
+import RefreshToken from '~/models/schemas/RefreshToken.schema'
 config()
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@tweetpiedteam.dkffjhj.mongodb.net/?retryWrites=true&w=majority`
 
@@ -39,6 +40,11 @@ class DatabaseServices {
     //! họ có  thể sử dụng và có thể ảnh hưởng
     //! trực tiếp lên sever
     return this.db.collection(process.env.DB_USERS_COLLECTION as string)
+  }
+
+  //TODO-HÀM GỌI refresh TOKEN NẾU CẦN
+  get RefreshTokens(): Collection<RefreshToken> {
+    return this.db.collection(process.env.DB_REFRESH_TOKEN_COLLECTION as string)
   }
 }
 //------------------------------------------------------
