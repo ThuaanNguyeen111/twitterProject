@@ -21,3 +21,7 @@ export interface TokenPayload extends JwtPayload {
   user_id: string
   token_type: UserRoles
 }
+
+export interface EmailVerifyReqBody {
+  email_verify_token: string
+}

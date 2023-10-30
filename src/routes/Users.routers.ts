@@ -1,11 +1,17 @@
-import { Router } from 'express'
+import e, { Router } from 'express'
 import {
   accessTokenValidator,
+  emailVerifyValidator,
   loginValidator,
   refreshTokenValidator,
   registerValidator
 } from '~/middlewares/users.middlewares'
-import { loginController, logoutController, registerController } from '~/controllers/users.controllers'
+import {
+  emailVerifyController,
+  loginController,
+  logoutController,
+  registerController
+} from '~/controllers/users.controllers'
 import { WarpAsync } from '~/utils/handlers'
 const usersRouter = Router()
 
@@ -43,5 +49,18 @@ usersRouter.post('/register', registerValidator, WarpAsync(registerController))
  * body: {refresh_token: string}
  */
 usersRouter.post('/logout', accessTokenValidator, refreshTokenValidator, WarpAsync(logoutController))
+
+/* 
+  des: verify email
+  khi người dùng đăng ký, trong email của họ sẽ có 1 link
+  trong link này đã setup sẵn 1 request kèm email_verify_token
+  thì verify email là cái route cho request đó
+  path: /users/verify-email?token=<email_verify_token>
+  bởi vì khi mình gửi cho người dùng thì mình không lấy gì về hết nên không xài phương thức get
+  mà xài phương thức post
+  body: {email_verify_token: string}
+*/
+
+usersRouter.post('/verify-email', emailVerifyValidator, WarpAsync(emailVerifyController))
 
 export default usersRouter

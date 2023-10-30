@@ -8,11 +8,11 @@ import { buffer } from 'stream/consumers'
 //? nenen mình muốn sử dụng hàm callback để xử lý lỗi nên không dùng
 export const signToken = ({
   payload,
-  privateKey = process.env.JWT_SECRECT as string,
+  privateKey,
   options = { algorithm: 'HS256' }
 }: {
   payload: string | object | Buffer
-  privateKey?: string
+  privateKey: string
   options: jwt.SignOptions
 }) => {
   return new Promise<string>((resolve, reject) => {
@@ -24,13 +24,7 @@ export const signToken = ({
 }
 
 //TODO - làm hàm nhận vào token, serectkeyOrPublicKey
-export const verifyToken = ({
-  token,
-  secretOrPublicKey = process.env.JWT_SECRECT as string
-}: {
-  token: string
-  secretOrPublicKey?: string
-}) => {
+export const verifyToken = ({ token, secretOrPublicKey }: { token: string; secretOrPublicKey: string }) => {
   //nếu thành công phải trả rA  jwt.JwtPayload
   return new Promise<TokenPayload>((resolve, reject) => {
     //! hàm call back ở chỗ này sẽ đặc biệt

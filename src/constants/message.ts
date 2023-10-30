@@ -31,5 +31,9 @@ export const USERS_MESSAGES = {
   ACCESS_TOKEN_IS_REQUIRED: 'Access token is required',
   REFRESH_TOKEN_IS_REQUIRED: 'Refersh token is required',
   USED_REFRESH_TOKEN_OR_NOT_EXIST: 'Used refersh token or not exist',
-  LOGOUT_SUCCESS: 'Login successfully'
+  LOGOUT_SUCCESS: 'Login successfully',
+  EMAIL_VERIFY_TOKEN_IS_REQUIRED: 'Email verify token is required',
+  NOT_FOUND: 'User Not found',
+  EMAIL_ALREADY_REQUIRED: 'Email already required',
+  EMAIL_VERIFY_SUCCESS: 'Email verify successfully'
 } as const
