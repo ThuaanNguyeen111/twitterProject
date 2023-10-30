@@ -18,6 +18,7 @@ import UserServicess from '~/services/users.services'
 import { hashPassword } from '~/utils/crypto'
 import { verifyToken } from '~/utils/jwt'
 import { validate } from '~/utils/validation'
+import { ObjectId } from 'mongodb'
 
 //?Bắt buộc phải bổ nghĩa ở req ,res và next nếu không sẽ lỗi
 //* 3 thằng này là interface cho express cung cấp, thì ta sẽ sử dụng để bổ nghĩa những
@@ -245,7 +246,7 @@ export const refreshTokenValidator = validate(
       refresh_token: {
         trim: true,
         custom: {
-          options: async (value:string, { req }) => {
+          options: async (value: string, { req }) => {
             //verifyrefresh_token để lấy decoded_refresh_token
             //! sử DỤNG TRY CATCH để bắt LOOXI KHÔNG ĐỂ VÀO VALIDATE
             try {
@@ -311,6 +312,88 @@ export const emailVerifyValidator = validate(
               })
               //todo - tìm trong database xem córefresh_token này không ?
               ;(req as Request).decode_email_verify_token = decode_email_verify_token
+            } catch (error) {
+              if (error instanceof JsonWebTokenError) {
+                throw new ErrorWithStatus({
+                  message: capitalize(error.message),
+                  status: HTTP_STATUS.UNAUTHORIZED
+                })
+              }
+              //! nếu không phải là JsonWebTokenError thì mình se xử lý lỗi trên try
+              // và tiếp tục throw lỗi ở đây
+              // còn nếu là JsonWebTokenError thì mình đã xử lý
+              throw error
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)
+
+export const forgotPasswordValidator = validate(
+  checkSchema(
+    {
+      email: {
+        notEmpty: { errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED },
+        isEmail: { errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID },
+        trim: true,
+        custom: {
+          options: async (value, { req }) => {
+            //* tìm user có email này
+            const user = await DatabaseService.users.findOne({ email: value })
+            // nếu  không óc thì sao mà gửi, trả về lỗi
+            if (user === null) {
+              throw new Error(USERS_MESSAGES.NOT_FOUND)
+            }
+            req.user = user
+            return true
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)
+
+export const verifyForgotPasswordValidator = validate(
+  checkSchema(
+    {
+      forgot_password_token: {
+        trim: true,
+        custom: {
+          options: async (value, { req }) => {
+            //*------------------------------------------------------------
+            //! nếu email_verify_token không gửi lên thì respond lỗi
+            if (!value) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_REQUIRED,
+                status: HTTP_STATUS.UNAUTHORIZED
+              })
+            }
+            //*------------------------------------------------------------
+            try {
+              const decode_forgot_password_token = await verifyToken({
+                token: value,
+                secretOrPublicKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as string
+              })
+              //todo - tìm trong database xem córefresh_token này không ?
+              ;(req as Request).decode_email_verify_token = decode_forgot_password_token
+
+              //? tùm user có user_id đó
+              const { user_id } = decode_forgot_password_token
+              const user = await DatabaseService.users.findOne({
+                _id: new ObjectId(user_id)
+              })
+              //nếu không có thì respond lỗi
+              if (user === null) {
+                throw new ErrorWithStatus({
+                  message: USERS_MESSAGES.NOT_FOUND,
+                  status: HTTP_STATUS.NOT_FOUND
+                })
+              }
             } catch (error) {
               if (error instanceof JsonWebTokenError) {
                 throw new ErrorWithStatus({

@@ -2,17 +2,23 @@ import e, { Router } from 'express'
 import {
   accessTokenValidator,
   emailVerifyValidator,
+  forgotPasswordValidator,
   loginValidator,
   refreshTokenValidator,
-  registerValidator
+  registerValidator,
+  verifyForgotPasswordValidator
 } from '~/middlewares/users.middlewares'
 import {
   emailVerifyController,
+  forgotPasswordController,
+  forgotPasswordverifyForgotPasswordController,
   loginController,
   logoutController,
-  registerController
+  registerController,
+  resendEmailVerifyController
 } from '~/controllers/users.controllers'
 import { WarpAsync } from '~/utils/handlers'
+import { verify } from 'crypto'
 const usersRouter = Router()
 
 //! usersRouter.use(loginValidator)
@@ -63,4 +69,40 @@ usersRouter.post('/logout', accessTokenValidator, refreshTokenValidator, WarpAsy
 
 usersRouter.post('/verify-email', emailVerifyValidator, WarpAsync(emailVerifyController))
 
+/*
+  des: resend email verify token
+method: POST
+headers: (Authorization: Braer <access_token>)
+*/
+
+usersRouter.post('/resend-email-verify-token', accessTokenValidator, WarpAsync(resendEmailVerifyController))
+
+/*
+ des: forrget password
+  *khi người dùng quên mật khẩu, họ cung cấp email cho mình
+      ?mình xem có user nào sở hữu email đó không, nếu có thì mình sẽ
+      ?tạo 1 forgot_password_token và gửi về email của họ
+method: POST
+path: /users/forgot-password
+body: {email: string}
+
+*/
+
+usersRouter.post('/forgot-password', forgotPasswordValidator, WarpAsync(forgotPasswordController))
+
+/*
+ des: verify forgot password token
+ người udnfg sau khi báo forgot password thì sẽ nhận được 1 email
+ họ vào click vào link trong email đó, link đó sẽ có 1 request đính
+ kèm forgot_password_token và gửi lên server /users/verify-forgot-password-token
+ mình sẽ verify cái token đó nếu thành công thì mình sẽ cho họ reset password
+method: POST
+path: /users/verify-forgot-password-token
+body: {forgot_password_token: string}
+*/
+usersRouter.post(
+  '/verify-forgot-password-token',
+  verifyForgotPasswordValidator,
+  WarpAsync(forgotPasswordverifyForgotPasswordController)
+)
 export default usersRouter

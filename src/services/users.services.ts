@@ -16,6 +16,14 @@ class userService {
     //!SECTION mình ép kiêu boolean để trả ra true hoặc false
   }
   //!------------------------------------------------------------------------------------------
+  private signforgotPasswordToken(user_id: string) {
+    return signToken({
+      payload: { user_id, token_type: UserRoles.ForgotPasswordToken },
+      options: { expiresIn: process.env.FORGOT_PASSWORD_TOKEN_EXPIRE_IN },
+      privateKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as string
+    })
+  }
+  //!------------------------------------------------------------------------------------------
   private signEmailVerifyToken(user_id: string) {
     return signToken({
       payload: { user_id, token_type: UserRoles.EmailVerificationToken },
@@ -122,7 +130,42 @@ class userService {
     )
     return { access_token, refresh_token }
   }
-}
 
+  //!--------------------------------------------------------------------------------
+  async resendEmailVerify(user_id: string) {
+    //tạo lại email_verify_token
+    const email_verify_token = await this.signEmailVerifyToken(user_id)
+    //update lại email_verify_token
+    await DatabaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
+      {
+        $set: {
+          email_verify_token,
+          updated_at: `$$NOW`
+        }
+      }
+    ])
+  }
+  //!-----------------------------------------------------------------------------
+  async forgotPassword(user_id: string) {
+    //tạo forgot_password_token mới
+    const forgot_password_token = await this.signforgotPasswordToken(user_id)
+    //TÌM VÀ update lại user bằng forgot_password_token mới và updated_at vào database
+    await DatabaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
+      {
+        $set: {
+          forgot_password_token,
+          updated_at: `$$NOW`
+        }
+      }
+    ])
+    //gửi mail cho user
+    //thông báo cho user
+
+    //* giả lập gửi mail cái forgot_password_token này cho user
+    console.log('forgot password:   ' + forgot_password_token)
+    //* thống báo cho user là đã gửi mail thành công
+    return { message: USERS_MESSAGES.CHECK_EMAIL_TO_RESET_PASSWORD }
+  }
+}
 const UserServicess = new userService()
 export default UserServicess
