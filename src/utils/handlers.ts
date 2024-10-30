@@ -3,8 +3,8 @@
 import { RequestHandler, NextFunction, Response, Request } from 'express'
 //! Nhận vào function và có RequestHandler
 
-export const WarpAsync = (fn: RequestHandler) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
+export const WarpAsync = <P>(fn: RequestHandler<P>) => {
+  return async (req: Request<P>, res: Response, next: NextFunction) => {
     try {
       //? Bởi vì bản thân hàm được sử dụng sử dụng async (cơ bản nó là 1 promise) mà async
       //* throw thì reject , return thì resolve

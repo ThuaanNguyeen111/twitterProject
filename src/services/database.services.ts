@@ -5,6 +5,8 @@ import { MongoClient, ServerApiVersion, Db, Collection } from 'mongodb'
 import { config } from 'dotenv'
 import User from '../models/schemas/users.schemas'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
+import { Follower } from '~/models/Followers.schema'
+import Tweet from '~/models/schemas/Tweet.schema'
 config()
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@tweetpiedteam.dkffjhj.mongodb.net/?retryWrites=true&w=majority`
 
@@ -41,11 +43,38 @@ class DatabaseServices {
     //! trực tiếp lên sever
     return this.db.collection(process.env.DB_USERS_COLLECTION as string)
   }
-
+//!------------------------------------------------------------------------------------------------
   //TODO-HÀM GỌI refresh TOKEN NẾU CẦN
   get RefreshTokens(): Collection<RefreshToken> {
-    return this.db.collection(process.env.DB_REFRESH_TOKEN_COLLECTION as string)
+    return this.db.collection(process.env.DB_REFRESH_TOKENS_COLLECTION as string)
   }
+  get followers(): Collection<Follower> {
+    return this.db.collection(process.env.DB_FOLLOWERS_COLLECTION as string)
+  }
+  //trong file .env thêm DB_FOLLOWERS_COLLECTION = 'followers'
+
+  async indexRefreshTokens() {
+    const exists = await this.RefreshTokens.indexExists(['token_1', 'exp_1'])
+    if (exists) return
+    this.RefreshTokens.createIndex({ token: 1 })
+    //đây là ttl index , sẽ tự động xóa các document khi hết hạn của exp
+    this.RefreshTokens.createIndex({ exp: 1 }, { expireAfterSeconds: 0 })
+  }
+  async indexUSers() {
+    await this.users.createIndex({ username: 1 }, { unique: true })
+    await this.users.createIndex({ email: 1 }, { unique: true })
+    await this.users.createIndex({ email: 1, paswword: 1 }, { unique: true })
+  }
+  async indexFollowers() {
+    const exists = await this.followers.indexExists(['user_id_1_followed_user_id_1'])
+    if (exists) return
+    this.followers.createIndex({ user_id: 1, followed_user_id: 1 })
+  }
+  //trong file index.ts fix lại hàm connect
+  get tweets(): Collection<Tweet> {
+    return this.db.collection(process.env.DB_TWEETS_COLLECTION as string)
+  }
+  //trong đó DB_TWEETS_COLLECTION lưu ở .env là 'tweets'
 }
 //------------------------------------------------------
 //? Mình tạo luôn 1 object từ class ở trên và export nó ra

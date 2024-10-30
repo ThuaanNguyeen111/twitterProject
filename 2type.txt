@@ -1,0 +1,2 @@
+localHost = 4000 : sever (tạo account Authorization phải đăng kí trên console.clound.google.com)
+localHost = 3000:  client ( giao diện html css,

@@ -1,24 +1,41 @@
+import { changePasswordValidator, unfollowValidator, verifyfiedUserValidator } from './../middlewares/users.middlewares'
+import {
+  changePasswordController,
+  followController,
+  getProfileController,
+  oAuthController,
+  refreshController,
+  unfollowController
+} from './../controllers/users.controllers'
 import e, { Router } from 'express'
 import {
   accessTokenValidator,
   emailVerifyValidator,
+  followValidator,
   forgotPasswordValidator,
   loginValidator,
   refreshTokenValidator,
   registerValidator,
+  resetPasswordValidator,
+  updateMeValidator,
   verifyForgotPasswordValidator
 } from '~/middlewares/users.middlewares'
 import {
   emailVerifyController,
   forgotPasswordController,
   forgotPasswordverifyForgotPasswordController,
+  getMeController,
   loginController,
   logoutController,
   registerController,
-  resendEmailVerifyController
+  resendEmailVerifyController,
+  resetPasswordController,
+  updateMeController
 } from '~/controllers/users.controllers'
 import { WarpAsync } from '~/utils/handlers'
 import { verify } from 'crypto'
+import { UpdateMeReqBody } from '~/models/requests/User.requests'
+import { filterMiddleware } from '~/middlewares/common.middlewares'
 const usersRouter = Router()
 
 //! usersRouter.use(loginValidator)
@@ -28,7 +45,7 @@ const usersRouter = Router()
  * METHOD: GET
  * BODY: {Email: string, Password: string}
  */
-usersRouter.get('/login', loginValidator, WarpAsync(loginController))
+usersRouter.post('/login', loginValidator, WarpAsync(loginController))
 
 //! register thì cần đẩy dữ liệu lên nên dùng post
 /*
@@ -47,13 +64,13 @@ usersRouter.get('/login', loginValidator, WarpAsync(loginController))
 */
 usersRouter.post('/register', registerValidator, WarpAsync(registerController))
 
-/**
- * des:dùng để đăng xuất
- * path: /api/users/logout
- * method: POST
- * headers: {Authorization: 'Bearer <access_token>'}
- * body: {refresh_token: string}
- */
+/*
+  des: lougout
+  path: /users/logout
+  method: POST
+  Header: {Authorization: Bearer <access_token>}
+  body: {refresh_token: string}
+  */
 usersRouter.post('/logout', accessTokenValidator, refreshTokenValidator, WarpAsync(logoutController))
 
 /* 
@@ -105,4 +122,109 @@ usersRouter.post(
   verifyForgotPasswordValidator,
   WarpAsync(forgotPasswordverifyForgotPasswordController)
 )
+
+/*
+des: cung cấp email để reset password, gữi email cho người dùng
+path: /forgot-password
+method: POST
+Header: không cần, vì  ngta quên mật khẩu rồi, thì sao mà đăng nhập để có authen đc
+body: {email: string}
+*/
+usersRouter.post(
+  '/reset-password',
+  resetPasswordValidator,
+  verifyForgotPasswordValidator,
+  WarpAsync(resetPasswordController)
+)
+
+/*
+des: get profile của user
+path: '/me'
+method: get
+Header: {Authorization: Bearer <access_token>}
+body: {}
+*/
+usersRouter.get('/me', accessTokenValidator, WarpAsync(getMeController))
+
+usersRouter.patch(
+  '/me',
+  accessTokenValidator,
+  verifyfiedUserValidator,
+  filterMiddleware<UpdateMeReqBody>([
+    'name',
+    'date_of_birth',
+    'bio',
+    'location',
+    'website',
+    'username',
+    'avatar',
+    'cover_photo'
+  ]),
+  updateMeValidator,
+  WarpAsync(updateMeController)
+)
+/*
+des: get profile của user khác bằng unsername
+path: '/:username'
+method: get
+không cần header vì, chưa đăng nhập cũng có thể xem
+*/
+usersRouter.get('/:username', WarpAsync(getProfileController))
+//chưa có controller getProfileController, nên bây giờ ta làm
+
+/*
+des: Follow someone
+path: '/follow'
+method: post
+headers: {Authorization: Bearer <access_token>}
+body: {followed_user_id: string}
+Mã id của Tuấn: 654bdc7d3bc7955febae759d
+Mã id của Tuấn 2: 654bdd29150fcad21cb6a6ca
+*/
+usersRouter.post('/follow', accessTokenValidator, verifyfiedUserValidator, followValidator, WarpAsync(followController))
+
+/**
+ * Des: Unfollow someone
+ * Path: /users/unfollow/:user_id
+ * Method: delete (Nó sẽ không cho mình truyền qua body phải qua param)
+ * headers: {Authorization: Bearer <access_token>}
+ */
+usersRouter.delete(
+  '/unfollow/:user_id',
+  accessTokenValidator,
+  verifyfiedUserValidator,
+  unfollowValidator,
+  WarpAsync(unfollowController)
+)
+
+//change password
+/*
+  des: change password
+  path: '/change-password'
+  method: PUT
+  headers: {Authorization: Bearer <access_token>}
+  Body: {old_password: string, password: string, confirm_password: string}
+g}
+  */
+usersRouter.put(
+  '/change-password',
+  accessTokenValidator,
+  verifyfiedUserValidator,
+  changePasswordValidator,
+  WarpAsync(changePasswordController)
+)
+//changePasswordValidator kiểm tra các giá trị truyền lên trên body cớ valid k ?
+
+/*
+  des: refreshtoken
+  path: '/refresh-token'
+  method: POST
+  Body: {refresh_token: string}
+g}
+  */
+usersRouter.post('/refresh-token', refreshTokenValidator, WarpAsync(refreshController))
+//khỏi kiểm tra accesstoken, tại nó hết hạn rồi mà
+//refreshController chưa làm
+
+usersRouter.get('/oauth/google', WarpAsync(oAuthController))
 export default usersRouter

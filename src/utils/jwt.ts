@@ -13,9 +13,13 @@ export const signToken = ({
 }: {
   payload: string | object | Buffer
   privateKey: string
-  options: jwt.SignOptions
-}) => {
+  options?: jwt.SignOptions
+  }) => {
+  //! Cấu trúc thường thấy của promise là return new Promise((resolve,reject)=>{})
+  // ở đây ta biết hàm này sẽ là hàm kí tên và sẽ trả về 1 token là string
+  // nên ta sẽ return new Promise<string> (định nghĩa kiểu trả về) 
   return new Promise<string>((resolve, reject) => {
+    //(err,token)=>{} là hàm callback của jwt.sign để xử lý lỗi
     jwt.sign(payload, privateKey, options, (err, token) => {
       if (err) throw reject(err)
       resolve(token as string)
