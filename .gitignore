@@ -109,7 +109,7 @@ dist
 
 # Docusaurus cache and generated files
 .docusaurus
-
+.client_secret_745625130635-l3djs5ndkj1k9m7b75m3g6me85qpbp6i.apps.googleusercontent.com
 # Serverless directories
 .serverless/
 
