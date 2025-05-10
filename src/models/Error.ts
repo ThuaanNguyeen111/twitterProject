@@ -1,4 +1,5 @@
 //ở đây thường mình sẽ extend Error để nhận đc báo lỗi ở dòng nào
+//! ErrorWithStatus là cấu hình xem lỗi xuất hiện như thế nào
 import HTTP_STATUS from '~/constants/httpStatus'
 import { USERS_MESSAGES } from '~/constants/message'
 type ErrorsType = Record<
@@ -19,6 +20,8 @@ export class ErrorWithStatus {
   }
 }
 
+//? entytyError là 1 cái class mở rộng từ ErrorWithStatus
+//? entityError thay thế cho object error thông báo những lỗi 422
 export class EntityError extends ErrorWithStatus {
   errors: ErrorsType
   constructor({ message = USERS_MESSAGES.VALIDATION_ERROR, errors }: { message?: string; errors: ErrorsType }) {

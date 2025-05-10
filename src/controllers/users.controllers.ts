@@ -28,6 +28,7 @@ import { verify } from 'crypto'
 //!------------------------------------------------------------------------------------------
 
 //!------------------------------------------------------------------------------------------------
+//
 export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
   //? lấy user_id từ user của req
   const user = req.user as User
@@ -37,7 +38,6 @@ export const loginController = async (req: Request<ParamsDictionary, any, LoginR
   //sau khi lấy được res về access_token vàrefresh_token thì gửi về cho client
   res.json({ message: USERS_MESSAGES.LOGIN_SUCCESS, result })
 }
-
 
 //!------------------------------------------------------------------------------------------------
 
@@ -210,7 +210,6 @@ export const changePasswordController = async (
   const result = await UserServicess.changePassword(user_id, password) //chưa code changePassword
   return res.json(result)
 }
-
 
 //!------------------------------------------------------------------------------------------------
 export const refreshController = async (req: Request<ParamsDictionary, any, RefreshTokenReqBody>, res: Response) => {

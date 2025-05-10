@@ -24,6 +24,7 @@ class userService {
   //!-------------------------------------------------------------------------------------------------------------------
   //hàm này để kiểm tra email đã tồn tại chưa bằng cách tìm trong database qua đường dẫn databaseService.users.findOne
   //findone trả về 1 document nếu tìm thấy, không tìm thấy thì trả về null
+  // null thì trả về false, còn có thì trả về true
   async checkEmailExist(email: string) {
     const result = await DatabaseService.users.findOne({ email })
     return Boolean(result)

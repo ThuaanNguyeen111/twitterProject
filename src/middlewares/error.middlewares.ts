@@ -20,6 +20,11 @@ export const defaultErrorHandler = (err: any, req: Request, res: Response, next:
     Object.defineProperty(err, key, { enumerable: true })
   })
   //? nếu lỗi xuống dược đây
+  //FIXME - nếu mà ở đây dùng res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({message: err.message}) thì nó sẽ không hiển thị được cái lỗi
+  //? vì có những lỗi không có message thì chết
+  //? thì khi chạy nó sẽ bị undefined
+  //? nên phải dùng cái hàm omit để lấy ra cái lỗi mà không có stack
+  //? omit là hàm của lodash nên phải cài lodash
   res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
     message: err.message,
     errorInfor: omit(err, ['stack'])

@@ -31,6 +31,8 @@ export const validate = (validation: RunnableValidationChains<ValidationChain>) 
     //* Tinh chỉnh lại mapped() để hiển thị lỗi theo ý muốn
 
     const errorObject = errors.mapped()
+    //cấu hình lại error mapped() để trả về lỗi theo ý muốn
+    //? Tạo 1 cái entityError để chứa các lỗi trả về cho người dùng
     const entityError = new EntityError({ errors: {} })
 
     //!-----------------------------------------------

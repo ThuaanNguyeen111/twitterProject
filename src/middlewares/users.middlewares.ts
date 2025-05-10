@@ -175,6 +175,8 @@ export const loginValidator = validate(
             if (user === null) {
               throw new Error(USERS_MESSAGES.EMAIL_OR_PASSWORD_IS_INCORRECT)
             }
+            //! Sau khi tìm thấy user thì mình sẽ lưu vào req.user
+            //! để tiếp tục đến tầng controller lấy ra sử dụng
             req.user = user
             return true
           }
@@ -212,7 +214,7 @@ export const loginValidator = validate(
     ['body']
   )
 )
-
+//!------------------------------------------------------------------------------------------
 //ctrl+ tab vào checkSchema để xem cách sử dụng
 //để xem checkSchema có những gì
 export const registerValidator = validate(
@@ -225,10 +227,12 @@ export const registerValidator = validate(
         isEmail: { errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID },
         trim: true,
         custom: {
+          //hàm checkEmailexist được viết trong service
+          //hàm này sẽ kiểm tra xem email đã tồn tại trong database hay chưa
           options: async (value, { req }) => {
             const isExist = await UserServicess.checkEmailExist(value)
             if (isExist) {
-              throw new Error('Email already exists')
+              throw new Error(USERS_MESSAGES.EMAIL_ALREADY_EXISTS)
             }
             return true
           }
