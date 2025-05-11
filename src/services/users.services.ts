@@ -12,7 +12,7 @@ import HTTP_STATUS from '~/constants/httpStatus'
 import { Follower } from '~/models/Followers.schema'
 import axios from 'axios'
 
-//? khi đụng tới database thì đụng tới service 
+//? khi đụng tới database thì đụng tới service
 class userService {
   private decodeRefreshToken(refresh_token: string) {
     //hàm nhận vào token và secretOrPublicKey sẽ return về payload
@@ -39,6 +39,8 @@ class userService {
     })
   }
   //!---------------------------------------------------------------------------------------------------------------------
+  //> đÂY LÀ HÀM KÍ EMAIL_VERIFY_TOKEN
+  //? hàm này dùng để tạo ra email_verify_token
   private signEmailVerifyToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
     return signToken({
       payload: { user_id, token_type: UserRoles.EmailVerificationToken, verify },
@@ -72,7 +74,7 @@ class userService {
   //!   refreshToken
   //* vì kí nên hàm này cần bảo mật nên buộc phải private
   //? signAccessToken nhận vào user_id và verify và định nghĩa type của 2 biến này
-  //? sử dụng signToken để kí 
+  //? sử dụng signToken để kí
   private signAccessToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
     return signToken({
       payload: { user_id, token_type: UserRoles.AccessToken, verify },

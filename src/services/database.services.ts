@@ -43,8 +43,10 @@ class DatabaseServices {
     //! trực tiếp lên sever
     return this.db.collection(process.env.DB_USERS_COLLECTION as string)
   }
-//!------------------------------------------------------------------------------------------------
+  //!------------------------------------------------------------------------------------------------
   //TODO-HÀM GỌI refresh TOKEN NẾU CẦN
+  //? NẾU CHƯA CÓ COLLECTION THÌ MONGOBD TỰ TẠO RỒI ĐƯA CHO MÌNH
+  //? NẾU CÓ RỒI THÌ MONGODB SẼ TRẢ RA CHO MÌNH
   get RefreshTokens(): Collection<RefreshToken> {
     return this.db.collection(process.env.DB_REFRESH_TOKENS_COLLECTION as string)
   }
